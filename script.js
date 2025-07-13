@@ -89,6 +89,35 @@ const GameController = (function () {
 
   return { playRound, getCurrentPlayer, resetGame };
 })();
+ 
+    // display module
+    const DisplayController = (function () {
+        const boardContainer = document.getElementById("gameboard");
+
+        const render = () => {
+            boardContainer.innerHTML = ""; // clear board
+
+            const board = Gameboard.getBoard();
+
+            board.forEach((cell, index) => {
+                const cellDiv = document.createElement("div");
+                cellDiv.classList.add("cell");
+                cellDiv.textContent = cell;
+
+                cellDiv.addEventListener("click", () => {  
+                    GameController.playRound(index);
+                    render(); // Re-render after move
+                });
+
+                boardContainer.appendChild(cellDiv);      
+            });
+        };
+        return { render };
+    })();
+
+    DisplayController.render();
+
+
 
 
 
