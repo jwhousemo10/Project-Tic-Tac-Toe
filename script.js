@@ -22,3 +22,15 @@ const Gameboard = (function () {
   return { getBoard, setCell, resetBoard };
 })();
 
+// factory function, player
+function createPlayer(name, marker) {
+  return { name, marker };
+}
+
+const player1 = createPlayer("Joakim", "X");
+const player2 = createPlayer("Zarina", "O");
+
+
+
+
+
