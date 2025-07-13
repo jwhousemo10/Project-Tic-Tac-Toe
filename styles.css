@@ -4,3 +4,13 @@
   grid-template-rows: repeat(3, 100px);
   gap: 5px;
 }
+
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  background-color: #718394;
+  border: 1px solid #444444;
+  cursor: pointer;
+}
