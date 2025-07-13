@@ -40,6 +40,8 @@ const GameController = (function () {
     
   const getCurrentPlayer = () => currentPlayer;
 
+  let resultMessage = "";
+
   const playRound = (index) => {
     if (gameOver) return;
     const success = Gameboard.setCell(index, currentPlayer.marker);
@@ -51,19 +53,21 @@ const GameController = (function () {
     console.log(`${currentPlayer.name} placed ${currentPlayer.marker} at cell ${index}.`);
 
     if (checkWinner()) {
-      console.log(`${currentPlayer.name} wins!`);
+      resultMessage = `${currentPlayer.name} wins!`;
       gameOver = true;
       return;
     }
 
     if (checkTie()) {
-      console.log("It's a tie!");
+      resultMessage = "It's a tie!";
       gameOver = true;
       return;
     }
 
     switchPlayer();
   };
+
+    const getResultMessage = () => resultMessage;
 
     const checkWinner = () => {
     const board = Gameboard.getBoard();
@@ -87,12 +91,15 @@ const GameController = (function () {
     gameOver = false;
   };
 
-  return { playRound, getCurrentPlayer, resetGame };
+  const isGameOver = () => gameOver;
+
+  return { playRound, getCurrentPlayer, resetGame, isGameOver, getResultMessage };
 })();
  
     // display module
     const DisplayController = (function () {
         const boardContainer = document.getElementById("gameboard");
+        const resultContainer = document.getElementById("result");
 
         const render = () => {
             boardContainer.innerHTML = ""; // clear board
@@ -105,18 +112,38 @@ const GameController = (function () {
                 cellDiv.textContent = cell;
 
                 cellDiv.addEventListener("click", () => {  
+                    const board = Gameboard.getBoard();
+                    if (board[index] !== "" || GameController.isGameOver()) return;
+                    
                     GameController.playRound(index);
                     render(); // Re-render after move
                 });
 
                 boardContainer.appendChild(cellDiv);      
             });
+
+            if (GameController.isGameOver()) {
+                if (GameController.isGameOver()) {
+                    resultContainer.textContent = GameController.getResultMessage();
+                } else {
+                  const currentPlayer = GameController.getCurrentPlayer();
+                const name = currentPlayer?.name || "Unknown Player";
+                resultContainer.textContent = `${name}'s turn`;  
+                }
+
+            }
         };
+
+        //restart button listener
+        document.getElementById("restart").addEventListener("click", () => {
+            GameController.resetGame();
+            DisplayController.render();
+        });
+
         return { render };
     })();
-
+    
     DisplayController.render();
-
 
 
 
