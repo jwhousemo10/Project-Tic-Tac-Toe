@@ -29,18 +29,40 @@ function createPlayer(name, marker) {
 
 // Game controller w. IIFE
 const GameController = (function () {
-  const player1 = createPlayer("Player 1", "X");
-  const player2 = createPlayer("Player 2", "O");
-  let currentPlayer = player1;
+  let player1;
+  let player2;
+  let currentPlayer;
   let gameOver = false;
-
-  const switchPlayer = () => {
-    currentPlayer = currentPlayer === player1 ? player2 : player1;
-  };
-    
-  const getCurrentPlayer = () => currentPlayer;
-
   let resultMessage = "";
+
+  const setPlayers = (name1, name2) => {
+    player1 = createPlayer(name1, "X");
+    player2 = createPlayer(name2, "O");
+    currentPlayer = player1;
+    gameOver = false;
+    resultMessage = "";
+    Gameboard.resetBoard();
+  };
+  
+  const switchPlayer = () => {  
+        currentPlayer = currentPlayer === player1 ? player2 : player1;
+  };  
+
+  const checkWinner = () => {
+      const board = Gameboard.getBoard();
+      const winPatterns = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8], // cols
+        [0, 4, 8], [2, 4, 6],            // diagonals
+      ];
+      return winPatterns.some(pattern => 
+        pattern.every(i => board[i] === currentPlayer.marker)
+      );
+  };  
+
+    const checkTie = () => {
+      return Gameboard.getBoard().every(cell => cell !== "");
+    };
 
   const playRound = (index) => {
     if (gameOver) return;
@@ -67,33 +89,17 @@ const GameController = (function () {
     switchPlayer();
   };
 
+    const getCurrentPlayer = () => currentPlayer;
+    const isGameOver = () => gameOver;
     const getResultMessage = () => resultMessage;
+    const resetGame = () => {
+      gameOver = false;  
+      resultMessage = "";
+      Gameboard.resetBoard();
+      currentPlayer = player1;  
+    };  
 
-    const checkWinner = () => {
-    const board = Gameboard.getBoard();
-    const winPatterns = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-      [0, 3, 6], [1, 4, 7], [2, 5, 8], // cols
-      [0, 4, 8], [2, 4, 6],            // diagonals
-    ];
-    return winPatterns.some(pattern => 
-      pattern.every(i => board[i] === currentPlayer.marker)
-    );
-  };
-
-  const checkTie = () => {
-    return Gameboard.getBoard().every(cell => cell !== "");
-  };
-
-  const resetGame = () => {
-    Gameboard.resetBoard();
-    currentPlayer = player1;
-    gameOver = false;
-  };
-
-  const isGameOver = () => gameOver;
-
-  return { playRound, getCurrentPlayer, resetGame, isGameOver, getResultMessage };
+    return { setPlayers, playRound, getCurrentPlayer, resetGame, isGameOver, getResultMessage };
 })();
  
     // display module
@@ -143,8 +149,15 @@ const GameController = (function () {
         return { render };
     })();
     
-    DisplayController.render();
+    document.getElementById("player-form").addEventListener("submit", (e) => {
+      e.preventDefault();
 
+      const name1 = document.getElementById("player1-name").value || "Player 1";
+      const name2 = document.getElementById("player2-name").value || "Player 2";
+
+      GameController.setPlayers(name1, name2);
+      DisplayController.render();
+    });
 
 
 
